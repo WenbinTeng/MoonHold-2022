@@ -135,10 +135,10 @@ uav_t get_gateway(float& time, bs_t& start, bs_t& end, param_t& param) {
         exit(1);
     }
     
+    time += param.tf + start.coor.distance(gateway.coor) / 10000.0;
     gateway.m = (near_coor.x / param.d_intra) + df[min_idx].x;
     gateway.n = (near_coor.y / param.d_inter) + df[min_idx].y;
     gateway.coor = near_coor + df[min_idx].dot({param.d_intra, param.d_inter, 1}) + coor_t(time * param.v, 0, 0);
-    time += param.tf + min_dis / 10000.0;
     
     return gateway;
 }
@@ -172,11 +172,11 @@ bool get_next_route(float& time, uav_t& curr, bs_t& end, param_t& param) {
             min_idx = i;
         }
     }
-
+    
+    time += param.tf + df[min_idx].dot({param.d_intra, param.d_inter, 1}).distance({0,0,0}) / 10000.0;
     curr.m += df[min_idx].x;
     curr.n += df[min_idx].y;
-    curr.coor += df[min_idx].dot({param.d_intra, param.d_inter, 1}) + coor_t((param.tf + before_send_dis / 10000.0) * param.v, 0.0, 0.0);
-    time += param.tf + min_dis / 10000.0;
+    curr.coor = {time * param.v + curr.m * param.d_intra, curr.n * param.d_inter, 0};
 
     return true;
 }
